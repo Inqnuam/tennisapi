@@ -1,51 +1,63 @@
-import mongoose from "mongoose"
-import { MongoMemoryServer } from "mongodb-memory-server"
-import dotenv from "dotenv"
+import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
 
-dotenv.config()
-let fakeDB
-const Id = mongoose.Types.ObjectId
-const DB_READY_MSG = "💿 MongoDB is ready!"
+dotenv.config();
 
-const connectToMongoDB = () => {
-    return new Promise(async (resolve, reject) => {
-        let URI = process.env.MONGO_URI
-        if (process.env.TEST) {
-            fakeDB = await MongoMemoryServer.create()
-            URI = fakeDB.getUri()
+const isProd = process.env.NODE_ENV !== "development";
+const isTesting = process.argv.includes("--isTesting");
+const isSQL = process.env.DB_TYPE !== "mongodb";
+const SQL_DB_NAME = isTesting ? process.env.SQL_TEST_DB_NAME : process.env.SQL_DB_NAME;
+const SQL_DB_USER = process.env.SQL_DB_USER;
+const SQL_DB_PASS = process.env.SQL_DB_PASS;
+const SQL_DB_HOST = process.env.SQL_DB_HOST;
+const SQL_DIALECT = process.env.DB_TYPE;
+
+let fakeDB;
+let sequelizeOptions = {
+    host: SQL_DB_HOST,
+    dialect: SQL_DIALECT,
+};
+let sequelize;
+
+if (isSQL) {
+    if (isTesting || isProd) {
+        sequelizeOptions.logging = false;
+    }
+
+    sequelize = new Sequelize(SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS, sequelizeOptions);
+}
+
+const connectToDB = async () => {
+    if (!isSQL) {
+        let URI = process.env.MONGO_URI;
+
+        if (isTesting) {
+            fakeDB = await MongoMemoryServer.create();
+            URI = fakeDB.getUri();
         }
 
-        mongoose.connect(URI, (err) => {
-            if (err) reject(err)
-            else resolve(DB_READY_MSG)
-        })
-    })
-}
+        await mongoose.connect(URI);
+    }
+};
 
-const disconnectFromMongoDB = () => {
-    return new Promise((resolve, reject) => {
-        mongoose.connection
-            .close()
-            .then(async () => {
-                if (process.env.TEST) {
-                    await fakeDB.stop({ doCleanup: true })
-                }
-                resolve()
-            })
-            .catch((err) => reject(err))
-    })
-}
+const disconnectFromDB = async () => {
+    if (!isSQL) {
+        await mongoose.connection.close();
+        if (isTesting) {
+            await fakeDB.stop({ doCleanup: true });
+        }
+    }
+};
 
 const gracefulExit = () => {
-    disconnectFromMongoDB()
+    disconnectFromDB()
         .then(() => {
-            //if (!process.env.TEST)
-            process.exit(0)
+            if (!isTesting) process.exit(0);
         })
         .catch((err) => {
-            console.log(err)
-            //if (!process.env.TEST)
-            process.exit(1)
-        })
-}
-export { mongoose, Id, connectToMongoDB, disconnectFromMongoDB, gracefulExit }
+            if (!isTesting) process.exit(1);
+        });
+};
+export { mongoose, connectToDB, disconnectFromDB, gracefulExit, sequelize };

@@ -7,12 +7,12 @@ REST API based on ExpressJS and MongoDB
 ## Minimum requirements
 
 -   NodeJS with ECM support (v12.22 with --experimental-modules flag or ^14)\*
--   MongoDB installed locally or with remote access (Atlas, Shared...)\*\*
+-   MongoDB/SQL DB installed locally or with remote access \*\*
 -   PM2 installed globally (`npm install pm2 -g`)
 
 ° Please use recent NPM version to avoid package issues.  
-°° Not required for tests.  
-Database dump with initial data can be found in resources directory.
+°° Not required for MongoDB tests.  
+Database dumps (Mongo and SQL) with initial data can be found in resources directory.
 
 ## Installation
 
@@ -60,17 +60,17 @@ npm run test
 
 Prefix endpoint paths with `/v1`.  
 Set id in url param/query or in request body for endoints requireing it.  
-Requests doing CUD operations must contain `api_key` in request headers.  
+Requests doing CUD operations must contain `api-key` in request headers.  
 All responses returning Content-Type is application/json.
 
-| method | path              | description                                                                   | returns                                                | api_key  |
-| ------ | ----------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | -------- |
-| GET    | /tasks/task1      | Get all players sorted from best to worst.                                    | `Array` of all players                                 |          |
-| GET    | /tasks/task2      | Get player data by id.                                                        | `Object` with player data                              |          |
-| GET    | /tasks/task3      | Get best country, players average IMC and players median size.                | `Object` with bestCountry, averageIMC, medianSize keys |          |
-| POST   | /players/profile/ | Add new player to the database. [See Players model](./src/models/players.js). | `Object` with newly created player data                | required |
-| PATCH  | /players/profile/ | Update player data by id. [See Players model](./src/models/players.js).       | `Object` with updated player data                      | required |
-| DELETE | /players/profile/ | Delete player by id.                                                          | `Object` {"deleted": "deleted player id"}              | required |
+| method | path           | description                                                                   | returns                                                | api_key  |
+| ------ | -------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ | -------- |
+| GET    | /players       | Get all players sorted from best to worst.                                    | `Array` of all players                                 |          |
+| GET    | /players/stats | Get best country, players average IMC and players median size.                | `Object` with bestCountry, averageIMC, medianSize keys |          |
+| GET    | /player        | Get player data by id.                                                        | `Object` with player data                              |          |
+| POST   | /player        | Add new player to the database. [See Players model](./src/models/players.js). | `Object` with newly created player data                | required |
+| PATCH  | /player        | Update player data by id. [See Players model](./src/models/players.js).       | `Object` with updated player data                      | required |
+| DELETE | /player        | Delete player by id.                                                          | `Object` {"deleted": "deleted player id"}              | required |
 
 You can test the API with Postman by importing the collection file from resources directory.
 

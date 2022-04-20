@@ -1,5 +1,5 @@
 import { players } from "../resources/headtohead.js";
-import { disconnectFromMongoDB } from "../src/db/config.js";
+import { disconnectFromDB } from "../src/db/config.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import dotenv from "dotenv";
@@ -7,20 +7,25 @@ dotenv.config();
 
 chai.use(chaiHttp);
 chai.should();
+
 let server;
 const key = process.env.API_KEY;
+const isSQL = process.env.DB_TYPE !== "mongodb";
 
 describe("Check API connections and results", () => {
     before(async () => {
-        process.env.TEST = true;
         const { app } = await import("../server.js");
+
+        if (isSQL) {
+            const { sequelize } = await import("../server.js");
+            await sequelize.sync({ force: true, alter: true });
+        }
+
         server = app;
     });
 
-    after(() => {
-        disconnectFromMongoDB().then(() => {
-            process.env.TEST = false;
-        });
+    after(async () => {
+        await disconnectFromDB();
     });
 
     describe("POST new player", () => {
@@ -28,13 +33,14 @@ describe("Check API connections and results", () => {
             let player = players[0];
             player.birthday = Date.now();
             chai.request(server)
-                .post("/v1/players/profile")
-                .set("api_key", key)
+                .post("/v1/player")
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .send(player)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
+                    res.body.id.should.be.a("number", player.id);
                     done();
                 });
         });
@@ -43,8 +49,8 @@ describe("Check API connections and results", () => {
             let player = players[1];
             player.birthday = Date.now();
             chai.request(server)
-                .post("/v1/players/profile")
-                .set("api_key", key)
+                .post("/v1/player")
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .send(player)
                 .end((err, res) => {
@@ -58,12 +64,12 @@ describe("Check API connections and results", () => {
             let player = players[0];
             player.birthday = Date.now();
             chai.request(server)
-                .post("/v1/players/profile")
-                .set("api_key", key)
+                .post("/v1/player")
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .send(player)
                 .end((err, res) => {
-                    res.should.have.status(409);
+                    res.should.not.have.status(200);
                     done();
                 });
         });
@@ -75,8 +81,8 @@ describe("Check API connections and results", () => {
             player.firstname = "Andre";
             player.lastname = "Agassi";
             chai.request(server)
-                .patch("/v1/players/profile")
-                .set("api_key", key)
+                .patch("/v1/player")
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .send(player)
                 .end((err, res) => {
@@ -92,8 +98,8 @@ describe("Check API connections and results", () => {
             let player = players[1];
             player.birthday = "hello world";
             chai.request(server)
-                .patch("/v1/players/profile")
-                .set("api_key", key)
+                .patch("/v1/player")
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .send(player)
                 .end((err, res) => {
@@ -107,8 +113,8 @@ describe("Check API connections and results", () => {
         it("must return deleted player id ", (done) => {
             const deletingPlayerId = players[1].id;
             chai.request(server)
-                .delete(`/v1/players/profile/${deletingPlayerId}`)
-                .set("api_key", key)
+                .delete(`/v1/player/${deletingPlayerId}`)
+                .set("api-key", key)
                 .set("content-type", "application/json")
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -123,7 +129,7 @@ describe("Check API connections and results", () => {
     describe("GET all players", () => {
         it("must return an array of players", (done) => {
             chai.request(server)
-                .get("/v1/tasks/task1")
+                .get("/v1/players")
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("array");
@@ -136,7 +142,7 @@ describe("Check API connections and results", () => {
         it("returns player object", (done) => {
             const player = players[0];
             chai.request(server)
-                .get(`/v1/tasks/task2/${player.id}`)
+                .get(`/v1/player/${player.id}`)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
@@ -147,7 +153,7 @@ describe("Check API connections and results", () => {
 
         it("must fail to find a player with wrong id", (done) => {
             chai.request(server)
-                .get("/v1/tasks/task2/wrongId")
+                .get("/v1/player/wrongId")
                 .end((err, res) => {
                     res.should.not.have.status(200);
                     done();

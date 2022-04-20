@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { calculateAge } from "../helpers/calculateAge.js";
+import { calculateAge } from "../../helpers/calculateAge.js";
+import ServerError from "../../helpers/serverError.js";
 
 const schema = new mongoose.Schema(
     {
@@ -88,7 +89,7 @@ const schema = new mongoose.Schema(
     }
 );
 
-// NOTE: arrow functions are not supported in schema.virtual getter/setter callback
+// NOTE: Arrow functions are not supported in Mongoose Schema
 schema.virtual("shortname").get(function () {
     const lastname = this.lastname.length > 3 ? this.lastname.slice(0, 3) : this.lastname;
     return `${this.firstname.slice(0, 1)}.${lastname}`.toUpperCase();
@@ -105,5 +106,66 @@ schema.virtual("data.age").get(function () {
 function checkIfRequired() {
     return this.isNew ? true : false;
 }
+
+schema.statics.get = async function get() {
+    return await this.find({}).sort({ "data.points": -1 });
+};
+
+schema.statics.getById = async function getById(id) {
+    const foundPlayer = await this.findOne({ id: id }, null, { strictQuery: true });
+    if (foundPlayer) {
+        return foundPlayer;
+    } else {
+        throw new ServerError(404, "Player not found", "Joueur introuvable");
+    }
+};
+
+schema.statics.add = async function add(player) {
+    const foundPlayer = await this.findOne({ id: player.id }, null, { strictQuery: true });
+    if (foundPlayer) {
+        throw new ServerError(409, "A player with the same id exists", ":(");
+    }
+
+    return await this.create(player);
+};
+
+schema.statics.updateById = async function updateById(id, body) {
+    const foundPlayer = await this.findOne({ id: id }, null, { strictQuery: true });
+    if (!foundPlayer) {
+        throw new ServerError(404, "Incorrect id", "Joueur introuvable");
+    }
+
+    let updatingData = body;
+
+    if (body.country) {
+        Object.keys(body.country).forEach((e) => {
+            updatingData[`country.${e}`] = body.country[e];
+        });
+
+        delete updatingData.country;
+    }
+
+    if (body.data) {
+        Object.keys(body.data).forEach((e) => {
+            updatingData[`data.${e}`] = body.data[e];
+        });
+
+        delete updatingData.data;
+    }
+
+    foundPlayer.set(updatingData);
+    const updatedPlayer = await foundPlayer.save();
+
+    return updatedPlayer;
+};
+
+schema.statics.deleteById = async function deleteById(id) {
+    const deletedPlayer = await this.findOneAndDelete({ id: id }, { strictQuery: true });
+    if (deletedPlayer) {
+        return deletedPlayer.id;
+    }
+
+    throw new ServerError(404, "Unknown player", "Joueur introuvable");
+};
 
 export const Players = mongoose.model("players", schema);

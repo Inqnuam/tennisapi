@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "Profile",
+			"name": "Player",
 			"item": [
 				{
 					"name": "Add player",
@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n      \"id\": 17,\n      \"firstname\": \"Rafael\",\n      \"lastname\": \"Nadal\",\n      \"birthday\": 518140800000,\n      \"sex\": \"M\",\n      \"country\": {\n        \"picture\": \"https://data.latelier.co/training/tennis_stats/resources/Espagne.png\",\n        \"code\": \"ESP\"\n      },\n      \"picture\": \"https://data.latelier.co/training/tennis_stats/resources/Nadal.png\",\n      \"data\": {\n        \"rank\": 1,\n        \"points\": 1982,\n        \"weight\": 85000,\n        \"height\": 185,\n        \"age\": 33,\n        \"last\": [1, 0, 0, 0, 1]\n      }\n    }",
+							"raw": " {\n      \"id\": 17,\n      \"firstname\": \"Rafael\",\n      \"lastname\": \"Nadal\",\n      \"birthday\": 518140800000,\n      \"sex\": \"M\",\n      \"country\": {\n        \"picture\": \"https://data.latelier.co/training/tennis_stats/resources/Espagne.png\",\n        \"code\": \"ESP\"\n      },\n      \"picture\": \"https://data.latelier.co/training/tennis_stats/resources/Nadal.png\",\n      \"data\": {\n        \"rank\": 1,\n        \"points\": 1982,\n        \"weight\": 85000,\n        \"height\": 185,\n        \"age\": 33,\n        \"last\": [1, 0, 0, 0, 1]\n      }\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -23,14 +23,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiLink}}/players/profile/",
+							"raw": "{{apiLink}}/player",
 							"host": [
 								"{{apiLink}}"
 							],
 							"path": [
-								"players",
-								"profile",
-								""
+								"player"
 							],
 							"query": [
 								{
@@ -44,13 +42,34 @@
 					"response": []
 				},
 				{
+					"name": "Get By Id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{apiLink}}/player/52",
+							"host": [
+								"{{apiLink}}"
+							],
+							"path": [
+								"player",
+								"52"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update Player",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 90,\n    \"firstname\": 34234,\n    \"birthday\": \"wrongDate\"\n    \n}",
+							"raw": "{\n    \"id\": 4,\n    \"firstname\" : \"Andre\",\n    \"lastname\": \"Agassi\",\n    \"birthday\": 456456,\n    \"data\": {\n        \"points\": 999,\n        \"last\": [0,0,0,1]\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -58,14 +77,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{apiLink}}/players/profile/",
+							"raw": "{{apiLink}}/player/4",
 							"host": [
 								"{{apiLink}}"
 							],
 							"path": [
-								"players",
-								"profile",
-								""
+								"player",
+								"4"
 							]
 						}
 					},
@@ -77,14 +95,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{apiLink}}/players/profile/17",
+							"raw": "{{apiLink}}/player/57",
 							"host": [
 								"{{apiLink}}"
 							],
 							"path": [
-								"players",
-								"profile",
-								"17"
+								"player",
+								"57"
 							]
 						}
 					},
@@ -93,10 +110,10 @@
 			]
 		},
 		{
-			"name": "Tasks",
+			"name": "Players",
 			"item": [
 				{
-					"name": "Task 1 - Get all players, sorted by \"data.rank\"",
+					"name": "Get all",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -104,53 +121,30 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiLink}}/tasks/task1",
+							"raw": "{{apiLink}}/players",
 							"host": [
 								"{{apiLink}}"
 							],
 							"path": [
-								"tasks",
-								"task1"
+								"players"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Task 2 - Get Player Data",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{apiLink}}/tasks/task2/17",
-							"host": [
-								"{{apiLink}}"
-							],
-							"path": [
-								"tasks",
-								"task2",
-								"17"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Task 3",
+					"name": "Stats",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{apiLink}}/tasks/task3",
+							"raw": "{{apiLink}}/players/stats",
 							"host": [
 								"{{apiLink}}"
 							],
 							"path": [
-								"tasks",
-								"task3"
+								"players",
+								"stats"
 							]
 						}
 					},
@@ -164,12 +158,12 @@
 		"apikey": [
 			{
 				"key": "key",
-				"value": "api_key",
+				"value": "API-KEY",
 				"type": "string"
 			},
 			{
 				"key": "value",
-				"value": "superSecret",
+				"value": "tennisIsCool",
 				"type": "string"
 			}
 		]

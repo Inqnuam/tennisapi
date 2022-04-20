@@ -1,13 +1,10 @@
-import { Players } from "../../models/index.js";
-import ServerError from "../../helpers/serverError.js";
+import { Players } from "../../services/players.js";
 import { getBestCountry, getMedianOf, getPlayersAverageIMC } from "./helpers.js";
 
-export const doTask3 = async (req, res, next) => {
+export const getPlayersStatsController = async (req, res, next) => {
     try {
-        const foundPlayers = await Players.find();
-        if (!foundPlayers) {
-            throw new ServerError(404, "Players not found", "Joueurs introuvables");
-        }
+        const foundPlayers = await Players.get();
+
         const bestCountry = getBestCountry(foundPlayers);
         const averageIMC = getPlayersAverageIMC(foundPlayers);
         const playersHeightList = foundPlayers.map((x) => x.data.height);

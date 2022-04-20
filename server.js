@@ -1,8 +1,10 @@
 import express from "express";
-import { connectToMongoDB, gracefulExit } from "./src/db/config.js";
+import { connectToDB, gracefulExit } from "./src/db/config.js";
 import { errorHandler, handle404 } from "./src/middlewares/errorHandler/index.js";
 import v1 from "./src/routes/v1/dispatcher.js";
+import { sequelize } from "./src/db/config.js";
 
+const isTesting = process.argv.includes("--isTesting");
 const PORT = process.env.PORT;
 const app = express();
 
@@ -13,9 +15,9 @@ app.use("/v1", v1);
 app.use(errorHandler);
 app.use(handle404);
 
-connectToMongoDB()
-    .then(() => {
-        if (!process.env.TEST) {
+connectToDB()
+    .then(async () => {
+        if (!isTesting) {
             const FREE_PORT = 0; // automatically assign a free port. Do not change.
             const server = app.listen(isNaN(PORT) ? FREE_PORT : PORT, () => {
                 process.send("ready");
@@ -26,7 +28,7 @@ connectToMongoDB()
     })
     .catch((err) => {
         console.log(err);
-        if (!process.env.TEST) {
+        if (!isTesting) {
             process.exit(1);
         }
     });
@@ -37,4 +39,4 @@ process
     })
     .on("SIGINT", gracefulExit)
     .on("SIGTERM", gracefulExit);
-export { app };
+export { app, sequelize };

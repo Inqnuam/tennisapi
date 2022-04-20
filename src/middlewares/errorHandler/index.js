@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import ServerError from "../../helpers/serverError.js";
 import { handle404 } from "./handle404.js";
-
 const errorHandler = (err, req, res, next) => {
     const sendingErrors = [];
     switch (err.constructor) {
@@ -30,7 +29,16 @@ const errorHandler = (err, req, res, next) => {
 
             break;
         default:
-            res.status(400).json({ error: { dev: "Bad Request", cli: ":(" } });
+            if (Array.isArray(err.errors)) {
+                err.errors.forEach((el) => {
+                    sendingErrors.push(`path:'${el.path}' ${el.message}`);
+                });
+
+                res.status(400).json({ error: { dev: sendingErrors.join(", "), cli: "Valeurs incorrectes" } });
+            } else {
+                res.status(400).json({ error: { dev: err.message ?? "Bad Request", cli: ":(" } });
+            }
+
             break;
     }
 };

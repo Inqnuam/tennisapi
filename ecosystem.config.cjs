@@ -13,7 +13,7 @@ module.exports = {
             error_file: "logs/err.log",
             out_file: "logs/out.log",
             log_date_format: "DD/MM HH:mm:ss Z",
-            ignore_watch: ["ecosystem.config.cjs", "logs", "node_modules", "test", ".git", "/*/**/.DS_Store", ".DS_Store", "README.md", "config", "resources", ".env"],
+            ignore_watch: ["ecosystem.config.cjs", "logs", "node_modules", "test", ".git", "/*/**/.DS_Store", ".DS_Store", "README.md", "config", "resources", ".env", ".envTEST"],
         },
     ],
 };

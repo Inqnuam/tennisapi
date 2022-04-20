@@ -1,8 +1,10 @@
-import profile from "./profile/dispatcher.js";
 import { Router } from "express";
+import { getPlayersController } from "../../../controllers/players/get.js";
+import { getPlayersStatsController } from "../../../controllers/players/stats.js";
 
 const players = Router();
 
-players.use("/profile", profile);
+players.get("/", getPlayersController);
+players.get("/stats", getPlayersStatsController);
 
 export default players;
