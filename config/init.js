@@ -34,6 +34,47 @@ const setEnvFile = async (data) => {
     });
 };
 
+const installDBPackage = async (db) => {
+    let pacakgeName = "";
+    switch (db) {
+        case "mysql":
+            pacakgeName = "mysql2";
+            break;
+        case "mariadb":
+            pacakgeName = "mariadb";
+            break;
+
+        case "mssql":
+            pacakgeName = "tedious";
+            break;
+        case "postgres":
+            pacakgeName = "pg";
+            break;
+        case "sqlite":
+            pacakgeName = "sqlite3";
+            break;
+        case "db2":
+            pacakgeName = "ibm_db";
+            break;
+        case "snowflake":
+            pacakgeName = "snowflake-sdk";
+            break;
+        default:
+            return;
+    }
+
+    print.YELLOW("Please wait while installing DB dependencies...");
+    return new Promise((resolve) => {
+        exec(`npm i ${pacakgeName}`, (err, stdout, stderr) => {
+            if (err || stderr) {
+                print.RED(`Failed to install ${pacakgeName} package`);
+                console.log(stderr);
+            }
+            resolve();
+        });
+    });
+};
+
 const init = async () => {
     const PORT = await readPort(parseInt(process.env.PORT));
     const API_KEY = await readApiKey(process.env.API_KEY);
@@ -54,7 +95,10 @@ const init = async () => {
         SQL_DB_USER = await readDBUser(process.env.SQL_DB_USER);
         SQL_DB_PASS = await readDBPass(process.env.SQL_DB_PASS);
         SQL_DB_HOST = await readDBHost(process.env.SQL_DB_HOST);
+
+        await installDBPackage(DB_TYPE);
     }
+
     await checkPM2();
 
     setEnvFile({ PORT, MONGO_URI, API_KEY, DB_TYPE, SQL_DB_NAME, SQL_TEST_DB_NAME, SQL_DB_USER, SQL_DB_PASS, SQL_DB_HOST })

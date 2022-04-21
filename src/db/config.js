@@ -43,7 +43,12 @@ const connectToDB = async () => {
 };
 
 const disconnectFromDB = async () => {
-    if (!isSQL) {
+    if (isSQL) {
+        if (isTesting) {
+            await sequelize.sync({ force: true, alter: true });
+        }
+        await sequelize.close();
+    } else {
         await mongoose.connection.close();
         if (isTesting) {
             await fakeDB.stop({ doCleanup: true });
