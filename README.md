@@ -1,6 +1,6 @@
 # Introduction
 
-REST API based on ExpressJS and MongoDB
+REST API based on ExpressJS and MongoDB or SQL Database
 
 ---
 
@@ -30,6 +30,8 @@ npm run config
 ```bash
 npm run start
 ```
+
+If this is the first launch and you are using SQL DB please check [server.js](./server.js) comments.
 
 ## Restart
 

@@ -17,6 +17,10 @@ app.use(handle404);
 
 connectToDB()
     .then(async () => {
+        // Update SQL Tables
+        // required for the first server launch ever:
+        // await sequelize.sync({ force: true, alter: true });
+
         if (!isTesting) {
             const FREE_PORT = 0; // automatically assign a free port. Do not change.
             const server = app.listen(isNaN(PORT) ? FREE_PORT : PORT, () => {
