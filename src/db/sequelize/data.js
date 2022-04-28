@@ -1,5 +1,5 @@
 import { sequelize } from "../../db/config.js";
-import { INTEGER, STRING, ENUM, BIGINT, VIRTUAL, TEXT, Model } from "sequelize";
+import { INTEGER, BIGINT, VIRTUAL, Model } from "sequelize";
 import { Games } from "./games.js";
 
 class Data extends Model {}

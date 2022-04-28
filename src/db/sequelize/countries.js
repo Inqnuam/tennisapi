@@ -1,5 +1,5 @@
 import { sequelize } from "../config.js";
-import { Sequelize, INTEGER, STRING, ENUM, BIGINT, TEXT, Model } from "sequelize";
+import { STRING, Model } from "sequelize";
 
 class Countries extends Model {}
 

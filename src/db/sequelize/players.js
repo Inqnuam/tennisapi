@@ -1,5 +1,5 @@
 import { sequelize } from "../../db/config.js";
-import { INTEGER, STRING, ENUM, BIGINT, VIRTUAL, TEXT, Model } from "sequelize";
+import { STRING, BIGINT, VIRTUAL, TEXT, Model } from "sequelize";
 import { Countries } from "./countries.js";
 import { Data } from "./data.js";
 import { Games } from "./games.js";
@@ -64,9 +64,11 @@ class Players extends Model {
 
     static async getById(id) {
         let foundPlayer = await this.findByPk(id, options);
+
         if (foundPlayer) {
             return this.#clearPlayerObject(foundPlayer);
         }
+
         throw new ServerError(404, "Player not found", "Joueur introuvable");
     }
     static async add(body) {
@@ -88,8 +90,10 @@ class Players extends Model {
                 },
             ],
         };
+
         if (!body.countryCode && body.country) {
             const foundCountry = await Countries.findByPk(body.country.code);
+
             if (foundCountry) {
                 body.countryCode = foundCountry.code;
             } else {
@@ -111,12 +115,13 @@ class Players extends Model {
         let updatingData = body;
 
         delete updatingData.id;
+
         if (!body.countryCode && body.country) {
             const foundCountry = (await Countries.findByPk(body.country.code)) ?? (await Countries.create(body.country));
+
             if (foundCountry) {
                 updatingData.countryCode = foundCountry.code;
             }
-
             delete updatingData.country;
         }
 
@@ -229,4 +234,5 @@ Players.belongsTo(Countries, { allowNull: false, foreignKey: "countryCode" });
 
 Players.hasOne(Data, { as: "data", foreignKey: "PlayerId", onDelete: "cascade" });
 Data.belongsTo(Players);
+
 export { Players };

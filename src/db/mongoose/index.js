@@ -1,3 +1,3 @@
-import { Players } from "./players.js";
+import { Players } from "./players/index.js";
 
 export { Players };
