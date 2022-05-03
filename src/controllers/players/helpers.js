@@ -21,10 +21,9 @@ function getMedianOf(arrayOfNumber = []) {
 
 function getBestCountry(playerList = []) {
     const vicByCountry = playerList
-        .reduce((accum, obj) => {
-            const victories = getSum(obj.data.last);
-            const code = obj.country.code;
-            const picture = obj.country.picture;
+        .reduce((accum, player) => {
+            const victories = getSum(player.data.last);
+            const { code, picture } = player.country;
             const foundIndex = accum.findIndex((x) => x.code === code);
 
             if (foundIndex !== -1) {
