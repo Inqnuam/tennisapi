@@ -31,7 +31,13 @@ const errorHandler = (err, req, res, next) => {
         default:
             if (Array.isArray(err.errors)) {
                 err.errors.forEach((el) => {
-                    sendingErrors.push(`path:'${el.path}' ${el.message}`);
+                    if (el.path) {
+                        sendingErrors.push(`path:'${el.path}' ${el.message}! Received (${typeof el.value}) ${el.value}`);
+                    } else if (el.errors && Array.isArray(el.errors.errors)) {
+                        el.errors.errors.forEach((childError) => {
+                            sendingErrors.push(`path:'${childError.path}' ${childError.message}! Received (${typeof childError.value}) ${childError.value}`);
+                        });
+                    }
                 });
 
                 res.status(400).json({ error: { dev: sendingErrors.join(", "), cli: "Valeurs incorrectes" } });

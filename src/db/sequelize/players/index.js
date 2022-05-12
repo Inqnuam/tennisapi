@@ -10,15 +10,12 @@ import deleteById from "./statics/deleteById.js";
 import options from "./queryOptions.js";
 
 class Players extends Model {
-    static #clearPlayerObject(player, isNew = false) {
+    static #clearPlayerObject(player) {
         player.data.setDataValue("games", undefined);
         player.data.setDataValue("age", calculateAge(player.birthday));
-
-        if (isNew) {
-            player.data.setDataValue("id", undefined);
-            player.data.setDataValue("PlayerId", undefined);
-            player.setDataValue("countryCode", undefined);
-        }
+        player.data.setDataValue("id", undefined);
+        player.data.setDataValue("PlayerId", undefined);
+        player.setDataValue("countryCode", undefined);
 
         return player;
     }
@@ -70,51 +67,73 @@ class Players extends Model {
         }
 
         const createdPlayer = await this.create(body, createOptions);
-        return this.#clearPlayerObject(createdPlayer, true);
+        return this.#clearPlayerObject(createdPlayer);
     }
 
     static async updateById(id, body) {
-        const foundPlayer = await this.findByPk(id, options);
+        const t = await sequelize.transaction();
 
-        if (!foundPlayer) {
-            throw new ServerError(404, "Player not found", "Joueur introuvable");
-        }
+        try {
+            const foundPlayer = await this.findByPk(id, options);
 
-        let updatingData = body;
-
-        delete updatingData.id;
-
-        if (!body.countryCode && body.country) {
-            const foundCountry = (await Countries.findByPk(body.country.code)) ?? (await Countries.create(body.country));
-
-            if (foundCountry) {
-                updatingData.countryCode = foundCountry.code;
+            if (!foundPlayer) {
+                throw new ServerError(404, "Player not found", "Joueur introuvable");
             }
-            delete updatingData.country;
-        }
 
-        if (body.data) {
-            if (updatingData.data.last) {
-                updatingData.data.games = body.data.last.map((x) => {
-                    return { result: x };
+            let updatingData = body;
+
+            delete updatingData.id;
+
+            if (!updatingData.countryCode && updatingData.country) {
+                const foundCountry = (await Countries.findByPk(updatingData.country.code)) ?? (await Countries.create(updatingData.country, { transaction: t }));
+
+                if (foundCountry) {
+                    updatingData.countryCode = foundCountry.code;
+                }
+                delete updatingData.country;
+            }
+
+            if (updatingData.data) {
+                if (updatingData.data.last) {
+                    if (!Array.isArray(updatingData.data.last)) {
+                        throw new ServerError(404, "'data.last' must be an array");
+                    }
+
+                    await Promise.all(foundPlayer.data.games.map(async (x) => await x.destroy({ transaction: t })));
+
+                    updatingData.data.games = updatingData.data.last.map((x) => {
+                        return { result: x, datumId: foundPlayer.data.dataValues.id };
+                    });
+
+                    await Games.bulkCreate(updatingData.data.games, { transaction: t, validate: true });
+
+                    delete updatingData.data.last;
+                }
+
+                Object.keys(updatingData.data).forEach((e) => {
+                    foundPlayer.data.set(e, updatingData.data[e]);
                 });
-                delete updatingData.last;
+
+                await foundPlayer.data.save({ transaction: t });
+
+                delete updatingData.data;
             }
 
-            Object.keys(updatingData.data).forEach((e) => {
-                foundPlayer.data.set(e, updatingData.data[e]);
+            Object.keys(updatingData).forEach((e) => {
+                foundPlayer.set(e, updatingData[e]);
             });
 
-            delete updatingData.data;
+            const updatedPlayer = await foundPlayer.save({ ...options, transaction: t });
+            await t.commit();
+
+            // reload required to return values with correct types instead of client sent ones
+            await updatedPlayer.reload(options);
+
+            return this.#clearPlayerObject(updatedPlayer);
+        } catch (error) {
+            await t.rollback();
+            throw error;
         }
-
-        Object.keys(updatingData).forEach((e) => {
-            foundPlayer.set(e, `${updatingData[e]}`);
-        });
-
-        const updatedPlayer = await foundPlayer.save(options);
-
-        return this.#clearPlayerObject(updatedPlayer);
     }
 
     static deleteById = deleteById;

@@ -11,19 +11,12 @@ export default {
         {
             model: Data,
             as: "data",
-            attributes: { exclude: ["id", "PlayerId"] },
             include: {
                 model: Games,
                 as: "games",
-                attributes: {
-                    exclude: ["datumId", "id"],
-                },
             },
         },
     ],
-    attributes: {
-        exclude: ["countryCode", "dataId"],
-    },
     order: [
         [
             {

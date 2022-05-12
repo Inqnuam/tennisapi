@@ -10,5 +10,11 @@ export const schema = {
     result: {
         type: INTEGER,
         allowNull: false,
+        validate: {
+            isIn: {
+                args: [[0, 1]],
+                msg: "Must be 0 or 1",
+            },
+        },
     },
 };

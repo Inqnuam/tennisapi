@@ -24,7 +24,7 @@ export const schema = {
         },
     },
     picture: {
-        type: TEXT,
+        type: STRING,
         allowNull: false,
         validate: {
             notNull: true,
@@ -34,6 +34,9 @@ export const schema = {
     birthday: {
         type: BIGINT,
         allowNull: false,
+        // validate: {
+        //     isNumeric: true,
+        // },
     },
     sex: {
         type: STRING,

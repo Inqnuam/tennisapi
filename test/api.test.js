@@ -94,6 +94,39 @@ describe("Check API connections and results", () => {
                 });
         });
 
+        it("updates player last games", (done) => {
+            let player = {
+                id: players[0].id,
+                data: {
+                    last: [0, 0, 0],
+                },
+            };
+            chai.request(server)
+                .patch("/v1/player")
+                .set("api-key", key)
+                .set("content-type", "application/json")
+                .send(player)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a("object");
+
+                    done();
+                });
+        });
+
+        it("Check database persistence", (done) => {
+            let player = players[0];
+
+            chai.request(server)
+                .get(`/v1/player/${player.id}`)
+                .end((err, res) => {
+                    res.should.have.status(200);
+
+                    res.body.data.last.should.be.a("array", [0, 0, 0]);
+                    done();
+                });
+        });
+
         it("must fail to update a player with incorrect value", (done) => {
             let player = players[1];
             player.birthday = "hello world";

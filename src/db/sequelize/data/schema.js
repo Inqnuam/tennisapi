@@ -38,6 +38,13 @@ export const schema = {
     },
     last: {
         type: VIRTUAL,
+        validate: {
+            isArray(value) {
+                if (!Array.isArray(value)) {
+                    throw new Error("Must be an array!");
+                }
+            },
+        },
         get() {
             return this.games.map((x) => x.result);
         },
