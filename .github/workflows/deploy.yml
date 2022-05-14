@@ -27,4 +27,4 @@ jobs:
 
             # Runs a single command using the runners shell
             - name: Run a one-line script
-              run: sh ./scripts/deploy.sh
+              run: sh .github/scripts/deploy.sh
