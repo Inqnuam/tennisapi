@@ -2,7 +2,7 @@ function checkIfRequired() {
     return this.isNew ? true : false;
 }
 
-export const schema = {
+export const schemaObject = {
     id: {
         type: Number,
         default: Date.now,
