@@ -1,2 +1,4 @@
 echo "Hello World";
-ls -la
+ls -la;
+echo "DB_TYPE='mariadb'\nPORT='7500'" > .env;
+npm run test
