@@ -2,7 +2,9 @@ import fs from "fs";
 import { exec } from "child_process";
 import * as print from "../src/helpers/colorize.js";
 import { readPort, readMongoURI, readApiKey, readDBType, readDBName, readTestDBName, readDBUser, readDBPass, readDBHost } from "./getUserInputs.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 const ENV_FILE_PATH = ".env";
 const NODE_ENV = "development";
 
@@ -75,10 +77,6 @@ const installDBPackage = async (db) => {
 };
 
 const init = async () => {
-    // TODO: check if dotenv is installed
-    const dotenv = await import("dotenv");
-    dotenv.config();
-
     const PORT = await readPort(parseInt(process.env.PORT));
     const API_KEY = await readApiKey(process.env.API_KEY);
     const DB_TYPE = await readDBType(process.env.DB_TYPE);

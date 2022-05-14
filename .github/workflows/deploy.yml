@@ -28,4 +28,4 @@ jobs:
               run: sh .github/scripts/test.sh
 
             - name: Deploy
-              run: sh .github/scripts/deploy.
+              run: sh .github/scripts/deploy.sh
