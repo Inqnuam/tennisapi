@@ -1,0 +1,12 @@
+{
+  "applicationName": "TennisCodeDeploy",
+  "deploymentGroupName": "TennisCodeDeploy",
+  "revision": {
+      "revisionType": "S3",
+      "s3Location": {
+          "bucket": "server-release",
+          "key": "express.zip",
+          "bundleType": "zip"
+      }
+  }
+}
