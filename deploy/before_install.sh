@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /home/ubuntu/tennisapi
-npm run kill
-mv ./.env /home/ubuntu/.env
-rm -rf ./*
-mv /home/ubuntu/.env ./.env
+sudo npm run kill
+sudo mv ./.env /home/ubuntu/.env
+sudo rm -rf .[a-zA-Z_-]*
+sudo rm -rf ./*
+sudo mv /home/ubuntu/.env ./.env
