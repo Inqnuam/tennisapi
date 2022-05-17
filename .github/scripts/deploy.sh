@@ -2,5 +2,5 @@ rm -rf node_modules logs .env .git
 zip -r express.zip .
 aws s3 cp express.zip s3://server-release
 aws deploy create-deployment \
-    --cli-input-json file://deploy.json \
+    --cli-input-json deploy.json \
     --region eu-west-3
