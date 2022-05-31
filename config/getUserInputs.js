@@ -1,5 +1,5 @@
 import readline from "readline";
-import * as print from "../src/helpers/colorize.js";
+import * as print from "./colorize.js";
 
 const DEFAULT_API_KEY = "tennisIsCool";
 const FREE_PORT = 0; // do not overwrite

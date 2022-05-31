@@ -1,4 +1,4 @@
-import ServerError from "../../../../../helpers/serverError.js";
+import ServerError from "../../../../api/errors/serverError.js";
 
 export async function deleteById(id) {
     const deletedPlayer = await this.findOneAndDelete({ id: id }, { strictQuery: true });

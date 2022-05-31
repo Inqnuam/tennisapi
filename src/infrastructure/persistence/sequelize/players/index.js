@@ -1,11 +1,11 @@
-import { sequelize } from "../../../../db/config.js";
+import { sequelize } from "../../../config/db.js";
 import { Model } from "sequelize";
 import { schema } from "./schema.js";
 import { Countries } from "../countries/index.js";
 import { Data } from "../data/index.js";
 import { Games } from "../games/index.js";
-import { calculateAge } from "../../../../helpers/calculateAge.js";
-import ServerError from "../../../../helpers/serverError.js";
+import { calculateAge } from "../../../../domain/services/players.func.js";
+import ServerError from "../../../api/errors/serverError.js";
 import deleteById from "./statics/deleteById.js";
 import options from "./queryOptions.js";
 

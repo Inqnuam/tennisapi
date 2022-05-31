@@ -57,4 +57,10 @@ function calculateIMC(weightGrammes, heightCM) {
     return isNaN(imc) ? 0 : imc;
 }
 
-export { calculateIMC, getSum, getBestCountry, getMedianOf, getPlayersAverageIMC };
+function calculateAge(dob) {
+    const diffMs = Date.now() - dob;
+    const ageDt = new Date(diffMs);
+    return Math.abs(ageDt.getUTCFullYear() - 1970);
+}
+
+export { calculateIMC, getSum, getBestCountry, getMedianOf, getPlayersAverageIMC, calculateAge };

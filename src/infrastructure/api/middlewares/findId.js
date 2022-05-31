@@ -1,4 +1,4 @@
-import ServerError from "../../../helpers/serverError.js";
+import ServerError from "../errors/serverError.js";
 
 export const findId = (req, res, next) => {
     const id = req.params.id ?? req.query.id ?? req.body.id;

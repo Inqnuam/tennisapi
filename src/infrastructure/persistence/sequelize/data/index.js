@@ -1,4 +1,4 @@
-import { sequelize } from "../../../../db/config.js";
+import { sequelize } from "../../../config/db.js";
 import { Model } from "sequelize";
 import { schema } from "./schema.js";
 

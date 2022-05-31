@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import ServerError from "../../../../helpers/serverError.js";
+import ServerError from "../../errors/serverError.js";
 import { handle404 } from "./handle404.js";
 const errorHandler = (err, req, res, next) => {
     const sendingErrors = [];

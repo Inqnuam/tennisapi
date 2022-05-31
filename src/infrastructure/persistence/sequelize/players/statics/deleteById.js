@@ -1,4 +1,4 @@
-import ServerError from "../../../../../helpers/serverError.js";
+import ServerError from "../../../../api/errors/serverError.js";
 
 async function deleteById(id) {
     const count = await this.destroy({

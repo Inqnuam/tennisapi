@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { calculateAge } from "../../../../helpers/calculateAge.js";
+import { calculateAge } from "../../../../domain/services/players.func.js";
 import { schemaObject } from "./schema.js";
 import { updateById } from "./statics/updateById.js";
 import { add } from "./statics/add.js";

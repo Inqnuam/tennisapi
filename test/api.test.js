@@ -1,5 +1,5 @@
 import { players } from "../resources/headtohead.js";
-import { disconnectFromDB } from "../src/db/config.js";
+import { disconnectFromDB } from "../src/infrastructure/config/db.js";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import dotenv from "dotenv";
@@ -24,7 +24,7 @@ newPlayer.birthday = Date.now();
 let playerToDelete = players[3];
 playerToDelete.birthday = birthday;
 
-describe("Check API connections and results", () => {
+describe("Check API connections and results", async () => {
     before(async () => {
         const { app } = await import("../server.js");
         server = app;

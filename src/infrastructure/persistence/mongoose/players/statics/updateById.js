@@ -1,4 +1,4 @@
-import ServerError from "../../../../../helpers/serverError.js";
+import ServerError from "../../../../api/errors/serverError.js";
 
 export async function updateById(id, body) {
     const foundPlayer = await this.findOne({ id: id }, null, { strictQuery: true });
