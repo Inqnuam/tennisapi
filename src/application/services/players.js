@@ -1,29 +1,26 @@
-class PlayersService {
-    setRepo(repo) {
-        if (this.repo) {
-            return;
-        }
-        this.repo = repo;
-    }
-    async add(player) {
-        return await this.repo.add(player);
-    }
+let repo = undefined;
 
-    async get() {
-        return await this.repo.get();
+export const setRepo = (_repo) => {
+    if (repo) {
+        return;
     }
+    repo = _repo;
+};
 
-    async getById(id) {
-        return await this.repo.getById(id);
-    }
-
-    async updateById(id, player) {
-        return await this.repo.updateById(id, player);
-    }
-
-    async deleteById(id) {
-        return await this.repo.deleteById(id);
-    }
-}
-
-export const Players = new PlayersService();
+export const Players = {
+    add: async (player) => {
+        return await repo.add(player);
+    },
+    get: async () => {
+        return await repo.get();
+    },
+    getById: async (id) => {
+        return await repo.getById(id);
+    },
+    updateById: async (id, player) => {
+        return await repo.updateById(id, player);
+    },
+    deleteById: async (id) => {
+        return await repo.deleteById(id);
+    },
+};

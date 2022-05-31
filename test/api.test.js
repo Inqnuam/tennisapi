@@ -10,18 +10,40 @@ chai.should();
 
 let server;
 const key = process.env.API_KEY;
-const isSQL = process.env.DB_TYPE !== "mongodb";
+
+const birthday = Date.now();
+let firstPlayer = players[0];
+firstPlayer.birthday = birthday;
+
+let secondPlayer = players[1];
+secondPlayer.birthday = birthday;
+
+let newPlayer = players[2];
+newPlayer.birthday = Date.now();
+
+let playerToDelete = players[3];
+playerToDelete.birthday = birthday;
 
 describe("Check API connections and results", () => {
     before(async () => {
         const { app } = await import("../server.js");
-
-        if (isSQL) {
-            const { sequelize } = await import("../server.js");
-            await sequelize.sync({ force: true, alter: true });
-        }
-
         server = app;
+
+        // To be replaced with a multiple insert endpoint
+        const firstInsertedPlayerRespose = await chai.request(server).post("/v1/player").set("api-key", key).set("content-type", "application/json").send(firstPlayer);
+        firstInsertedPlayerRespose.should.have.status(200);
+        firstInsertedPlayerRespose.body.should.be.a("object");
+        firstInsertedPlayerRespose.body.id.should.be.a("number", firstPlayer.id);
+
+        const secondeInsertedPlayerRespose = await chai.request(server).post("/v1/player").set("api-key", key).set("content-type", "application/json").send(secondPlayer);
+        secondeInsertedPlayerRespose.should.have.status(200);
+        secondeInsertedPlayerRespose.body.should.be.a("object");
+        secondeInsertedPlayerRespose.body.id.should.be.a("number", secondPlayer.id);
+
+        const playerToDeleteRespose = await chai.request(server).post("/v1/player").set("api-key", key).set("content-type", "application/json").send(playerToDelete);
+        playerToDeleteRespose.should.have.status(200);
+        playerToDeleteRespose.body.should.be.a("object");
+        playerToDeleteRespose.body.id.should.be.a("number", playerToDelete.id);
     });
 
     after(async () => {
@@ -30,29 +52,11 @@ describe("Check API connections and results", () => {
 
     describe("POST new player", () => {
         it("must insert a new player to the DB and return new player", (done) => {
-            let player = players[0];
-            player.birthday = Date.now();
             chai.request(server)
                 .post("/v1/player")
                 .set("api-key", key)
                 .set("content-type", "application/json")
-                .send(player)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a("object");
-                    res.body.id.should.be.a("number", player.id);
-                    done();
-                });
-        });
-
-        it("inserts a second player to the DB and return new player", (done) => {
-            let player = players[1];
-            player.birthday = Date.now();
-            chai.request(server)
-                .post("/v1/player")
-                .set("api-key", key)
-                .set("content-type", "application/json")
-                .send(player)
+                .send(newPlayer)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
@@ -61,13 +65,11 @@ describe("Check API connections and results", () => {
         });
 
         it("must fail to create a new player with an exising player id", (done) => {
-            let player = players[0];
-            player.birthday = Date.now();
             chai.request(server)
                 .post("/v1/player")
                 .set("api-key", key)
                 .set("content-type", "application/json")
-                .send(player)
+                .send(firstPlayer)
                 .end((err, res) => {
                     res.should.not.have.status(200);
                     done();
@@ -77,14 +79,13 @@ describe("Check API connections and results", () => {
 
     describe("PATCH update player", () => {
         it("updates player and return updated player", (done) => {
-            let player = players[1];
-            player.firstname = "Andre";
-            player.lastname = "Agassi";
+            firstPlayer.firstname = "Andre";
+            firstPlayer.lastname = "Agassi";
             chai.request(server)
                 .patch("/v1/player")
                 .set("api-key", key)
                 .set("content-type", "application/json")
-                .send(player)
+                .send(firstPlayer)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
@@ -96,7 +97,7 @@ describe("Check API connections and results", () => {
 
         it("updates player last games", (done) => {
             let player = {
-                id: players[0].id,
+                id: firstPlayer.id,
                 data: {
                     last: [0, 0, 0],
                 },
@@ -109,32 +110,27 @@ describe("Check API connections and results", () => {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-
                     done();
                 });
         });
 
         it("Check database persistence", (done) => {
-            let player = players[0];
-
             chai.request(server)
-                .get(`/v1/player/${player.id}`)
+                .get(`/v1/player/${firstPlayer.id}`)
                 .end((err, res) => {
                     res.should.have.status(200);
-
                     res.body.data.last.should.be.a("array", [0, 0, 0]);
                     done();
                 });
         });
 
         it("must fail to update a player with incorrect value", (done) => {
-            let player = players[1];
-            player.birthday = "hello world";
+            secondPlayer.birthday = "hello world";
             chai.request(server)
                 .patch("/v1/player")
                 .set("api-key", key)
                 .set("content-type", "application/json")
-                .send(player)
+                .send(secondPlayer)
                 .end((err, res) => {
                     res.should.have.status(400);
                     done();
@@ -144,16 +140,14 @@ describe("Check API connections and results", () => {
 
     describe("DELETE player by id", () => {
         it("must return deleted player id ", (done) => {
-            const deletingPlayerId = players[1].id;
             chai.request(server)
-                .delete(`/v1/player/${deletingPlayerId}`)
+                .delete(`/v1/player/${playerToDelete.id}`)
                 .set("api-key", key)
                 .set("content-type", "application/json")
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-                    res.body.deleted.should.be.a("number", deletingPlayerId);
-
+                    res.body.deleted.should.be.a("number", playerToDelete.id);
                     done();
                 });
         });
@@ -173,13 +167,12 @@ describe("Check API connections and results", () => {
 
     describe("GET player by id", () => {
         it("returns player object", (done) => {
-            const player = players[0];
             chai.request(server)
-                .get(`/v1/player/${player.id}`)
+                .get(`/v1/player/${secondPlayer.id}`)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a("object");
-                    res.body.fullname.should.be.a("string", `${player.firstname} ${player.lastname}`);
+                    res.body.fullname.should.be.a("string", `${secondPlayer.firstname} ${secondPlayer.lastname}`);
                     done();
                 });
         });

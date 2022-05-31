@@ -21,16 +21,18 @@ let sequelizeOptions = {
 };
 let sequelize;
 
-if (isSQL) {
-    if (isTesting || isProd) {
-        sequelizeOptions.logging = false;
-    }
-
-    sequelize = new Sequelize(SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS, sequelizeOptions);
-}
-
 const connectToDB = async () => {
-    if (!isSQL) {
+    if (isSQL) {
+        if (isTesting || isProd) {
+            sequelizeOptions.logging = false;
+        }
+
+        sequelize = new Sequelize(SQL_DB_NAME, SQL_DB_USER, SQL_DB_PASS, sequelizeOptions);
+
+        if (isTesting) {
+            await sequelize.sync({ force: true, alter: true });
+        }
+    } else {
         let URI = process.env.MONGO_URI;
 
         if (isTesting) {
