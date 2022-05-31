@@ -1,4 +1,4 @@
-import { getSum, calculateIMC, getMedianOf, getBestCountry, getPlayersAverageIMC } from "../src/infra/api/controllers/players/helpers.js";
+import { getSum, calculateIMC, getMedianOf, getBestCountry, getPlayersAverageIMC } from "../src/domain/services/players.func.js";
 import assert from "assert";
 
 import { players } from "../resources/headtohead.js";

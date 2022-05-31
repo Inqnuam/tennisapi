@@ -1,29 +1,38 @@
-class PlayersService {
-    setRepo(repo) {
-        if (this.repo) {
-            return;
-        }
-        this.repo = repo;
-    }
-    async add(player) {
-        return await this.repo.add(player);
-    }
+import { getBestCountry, getMedianOf, getPlayersAverageIMC } from "../../domain/services/players.func.js";
 
-    async get() {
-        return await this.repo.get();
-    }
+let playerRepo = undefined;
 
-    async getById(id) {
-        return await this.repo.getById(id);
+export const setRepo = (_playerRepo) => {
+    if (playerRepo) {
+        return;
     }
+    playerRepo = _playerRepo;
+};
 
-    async updateById(id, player) {
-        return await this.repo.updateById(id, player);
-    }
+export const Players = {
+    add: async (player) => {
+        return await playerRepo.add(player);
+    },
+    get: async () => {
+        return await playerRepo.get();
+    },
+    getById: async (id) => {
+        return await playerRepo.getById(id);
+    },
+    updateById: async (id, player) => {
+        return await playerRepo.updateById(id, player);
+    },
+    deleteById: async (id) => {
+        return await playerRepo.deleteById(id);
+    },
+    getStats: async () => {
+        const foundPlayers = await playerRepo.get();
 
-    async deleteById(id) {
-        return await this.repo.deleteById(id);
-    }
-}
+        const bestCountry = getBestCountry(foundPlayers);
+        const averageIMC = getPlayersAverageIMC(foundPlayers);
+        const playersHeightList = foundPlayers.map((x) => x.data.height);
+        const medianSize = getMedianOf(playersHeightList);
 
-export const Players = new PlayersService();
+        return { bestCountry, averageIMC, medianSize };
+    },
+};
